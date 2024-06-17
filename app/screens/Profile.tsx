@@ -73,9 +73,12 @@ const Profile = ({ navigation, user: secureUser }: RouterProps) => {
           style={styles.logo}
         />
       </View>
-      <View style={styles.goBackContainer}>
-        <Button title="< Go Back" onPress={() => navigation.navigate("Home")} />
-      </View>
+      <Text style={styles.goBack} onPress={() => navigation.navigate("Home")}>
+        {"< Go Back"}
+      </Text>
+      <Text style={styles.logout} onPress={() => FIREBASE_AUTH.signOut()}>
+        Logout
+      </Text>
       <View style={styles.header}>
         <Text style={styles.headerText}>Hi {user.name}, you are a</Text>
         <Text style={[styles.headerText, styles.bold]}>Beginner Learner</Text>
@@ -86,7 +89,7 @@ const Profile = ({ navigation, user: secureUser }: RouterProps) => {
       />
       <View style={styles.information}>
         <PointsButton points={user.points} onPress={() => void 0} />
-        <Text style={styles.streak}>{user.num_daily_streak} day streak 🔥</Text>
+        <Text style={styles.streak}>🔥 {user.num_daily_streak} day streak</Text>
       </View>
       <View style={styles.progress}>
         <Progress.Bar
@@ -110,9 +113,7 @@ const Profile = ({ navigation, user: secureUser }: RouterProps) => {
           onPress={() => navigation.navigate("Redeem")}
         />
       </View>
-      <Text style={styles.logout} onPress={() => FIREBASE_AUTH.signOut()}>
-        Logout
-      </Text>
+
     </View>
   );
 };
@@ -162,6 +163,7 @@ const styles = StyleSheet.create({
   header: {
     width: "100%",
     alignItems: "flex-start",
+    marginTop: 24,
   },
   headerText: {
     fontSize: 24,
@@ -198,8 +200,16 @@ const styles = StyleSheet.create({
     position: "absolute",
     fontSize: 18,
     fontWeight: "bold",
-    top: 12,
+    top: 14,
     right: 16,
     color: "#FF0000"
   },
+  goBack: {
+    position: "absolute",
+    fontSize: 18,
+    fontWeight: "bold",
+    top: 14,
+    left: 16,
+    color: "#2BB1F3"
+  }
 });

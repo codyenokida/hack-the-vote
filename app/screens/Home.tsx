@@ -109,7 +109,7 @@ const Home = ({ navigation, user: secureUser }: RouterProps) => {
               onPress={() => navigation.navigate("Redeem")}
             />
             <Text style={[styles.streak, { marginTop: 4 }]}>
-              {user.num_daily_streak} day streak 🔥
+              🔥 {user.num_daily_streak} day streak
             </Text>
           </View>
         </View>

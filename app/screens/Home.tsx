@@ -6,12 +6,21 @@ import {
   Button,
   StyleSheet,
   ActivityIndicator,
+  Modal,
+  TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { NavigationProp } from "@react-navigation/native";
 import CustomButton from "../components/CustomButton";
 import { getUser } from "../../lib/firebase/firestore";
-import { isToday } from "../../utils/utils";
+import { insights, insights2, insights3, isToday } from "../../utils/utils";
+import PointsButton from "../components/PointsButton";
+import ActionButton from "../components/ActionButton";
+import DailyChallengeModal from "../components/DailyChallengeModal";
+import { doc, onSnapshot } from "firebase/firestore";
+import { FIRESTORE_DB } from "../../lib/firebase/firebase";
+import InsightCarousel from "../components/InsightCarousel";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -21,6 +30,12 @@ interface RouterProps {
 const Home = ({ navigation, user: secureUser }: RouterProps) => {
   const [user, setUser] = useState<User>(null);
   const [loading, setLoading] = useState<boolean>(true);
+
+  /**
+   * Daily Challenge States
+   */
+  const [dailyChallengeModalVisible, setDailyChallengeModalVisible] =
+    useState<boolean>(false);
 
   useEffect(() => {
     const getDocument = async () => {
@@ -37,7 +52,19 @@ const Home = ({ navigation, user: secureUser }: RouterProps) => {
     };
 
     getDocument();
-  }, [user]);
+  }, [secureUser]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(
+      doc(FIRESTORE_DB, "users", secureUser.uid),
+      (doc) => {
+        const newData = doc.data() as User;
+        setUser(newData);
+      }
+    );
+
+    return () => unsub();
+  }, []);
 
   if (loading) {
     return (
@@ -47,65 +74,209 @@ const Home = ({ navigation, user: secureUser }: RouterProps) => {
     );
   }
 
-  const challengeButtonDisabled = isToday(user.last_completed_challenge_date);
+  const challengeButtonDisabled = isToday(user?.last_completed_challenge_date);
 
   return (
-    <View style={styles.safeArea}>
-      <View style={styles.header}>
-        <CustomButton
-          title={`Hi ${user.name}!`}
-          onPress={() => navigation.navigate("Profile")}
-        />
-        <CustomButton
-          title={`${user.points} points!`}
-          onPress={() => navigation.navigate("Redeem")}
-        />
-      </View>
-      <View style={styles.fullPage}>
-        <Image
-          source={require("../../assets/adaptive-icon.png")}
-          style={styles.image}
-        />
-        <View style={styles.buttons}>
-          <CustomButton title="Voting in 113 days!" onPress={() => void 0} />
-          <CustomButton
-            title="Daily Challenge"
-            onPress={() => navigation.navigate("Challenge")}
+    <ScrollView>
+      <View style={styles.container}>
+        <View style={styles.headerInfo}>
+          <View style={styles.head}>
+            <Text style={styles.appName}>Politicool</Text>
+            <Image
+              source={require("../../assets/eyeglasses.png")}
+              style={styles.logo}
+            />
+          </View>
+          <View>
+            <Text style={styles.headerText}>Hi {user.name}!</Text>
+            <Text style={styles.headerText}>We're glad you're here.</Text>
+          </View>
+        </View>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Profile")}
+            style={styles.profileButton}
+          >
+            <Image
+              source={require("../../assets/profile.png")}
+              style={styles.avatarImage}
+            />
+            <Text style={{ fontWeight: "bold" }}>Go to Profile</Text>
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <PointsButton
+              points={user.points}
+              onPress={() => navigation.navigate("Redeem")}
+            />
+            <Text style={[styles.streak, { marginTop: 4 }]}>
+              {user.num_daily_streak} day streak 🔥
+            </Text>
+          </View>
+        </View>
+        <View style={styles.actionBar}>
+          <ActionButton
+            text="The Daily Challenge"
+            callToActionText={
+              challengeButtonDisabled ? "✓ Completed" : "Play Now"
+            }
+            head={
+              <View style={styles.view}>
+                <Image
+                  source={require("../../assets/reward.png")}
+                  style={styles.viewImage}
+                />
+              </View>
+            }
+            onPress={() => setDailyChallengeModalVisible(true)}
             disabled={challengeButtonDisabled}
           />
-          <CustomButton
-            title="Learn"
-            onPress={() => navigation.navigate("Learn")}
-          />
-          <CustomButton
-            title="Redeem Points"
-            onPress={() => navigation.navigate("Redeem")}
+          <ActionButton
+            text="Until voting ends"
+            callToActionText="View more info"
+            head={
+              <View>
+                <Text style={styles.importantText}>140 Days</Text>
+              </View>
+            }
+            onPress={() => void 0}
           />
         </View>
+        <View style={styles.insights}>
+          <Text style={styles.title}>Insights</Text>
+          <Text>Voting 101</Text>
+          <InsightCarousel
+            data={insights}
+            navigation={navigation}
+            completedLessons={user.lessonsCompleted}
+          />
+          <Text>The Senate</Text>
+          <InsightCarousel
+            data={insights2}
+            navigation={navigation}
+            completedLessons={user.lessonsCompleted}
+          />
+          <Text>The Electoral College</Text>
+          <InsightCarousel
+            data={insights3}
+            navigation={navigation}
+            completedLessons={user.lessonsCompleted}
+          />
+        </View>
+        <DailyChallengeModal
+          visible={dailyChallengeModalVisible}
+          setVisible={setDailyChallengeModalVisible}
+          user_id={user.user_id}
+        />
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  importantText: {
+    textAlign: "center",
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  view: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  viewImage: {
+    width: 40,
+    height: 40,
+  },
   container: {
     flex: 1,
+    position: "relative",
+    backgroundColor: "#EBF4FF", // Off-white color
+    gap: 16,
+    paddingVertical: 16,
+  },
+  pointButton: {
+    position: "absolute",
+    top: 60,
+    right: 16,
+    zIndex: 10,
+  },
+  profileButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 4,
+    backgroundColor: "white",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  avatarImage: {
+    width: 44,
+    height: 44,
   },
   header: {
-    height: 96,
-    flexDirection: "row", // Set the direction of items to row (horizontal)
-    justifyContent: "space-between",
+    flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFDEE", // Off-white color
+    justifyContent: "space-between",
+    gap: 40,
+    paddingHorizontal: 16,
+  },
+  headerContent: {
+    flex: 1,
+    alignItems: "flex-end",
+    gap: 4,
+  },
+  streak: {
+    fontWeight: "bold",
+  },
+  headerText: {
+    fontSize: 24,
+  },
+  headerInfo: {
+    marginTop: 50,
+    gap: 8,
+    paddingHorizontal: 16,
+  },
+  head: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+  },
+  logo: {
+    width: 20,
+    height: 20,
+  },
+  appName: {
+    fontWeight: "bold",
+    fontSize: 20,
+    textAlign: "center",
+  },
+  actionBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 16,
+    zIndex: 10,
+    paddingHorizontal: 16,
+  },
+  insights: {
+    backgroundColor: "white",
+    gap: 8,
     padding: 16,
   },
-  safeArea: {
-    flex: 1,
-  },
-  fullPage: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: "#FFFDEE", // Off-white color
+  title: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
   text: {
     color: "white",

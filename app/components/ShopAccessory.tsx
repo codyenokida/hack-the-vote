@@ -6,40 +6,46 @@ import {
   TouchableOpacity,
   GestureResponderEvent,
 } from "react-native";
+import { accessoryImageMap } from "../../utils/accessories";
 
 interface ShopAccessoryProps {
   accessory: Accessory;
   onPress: (event: GestureResponderEvent) => void;
   disabled?: boolean;
+  selected: boolean;
 }
 
 const ShopAccessory = ({
   accessory,
   onPress,
   disabled,
+  selected,
 }: ShopAccessoryProps) => {
   return (
     <TouchableOpacity
-      style={[styles.button, disabled ? styles.disabledButton : null]}
+      style={[
+        styles.button,
+        selected ? styles.selected : null,
+        disabled ? styles.disabled : null,
+      ]}
       onPress={disabled ? undefined : onPress}
       disabled={disabled}
     >
       <View style={styles.container}>
-        <View style={styles.costContainer}>
-          <Text style={styles.cost}>{accessory.cost}</Text>
-        </View>
-        <View>
+        <View
+          style={[styles.check, selected ? styles.checkSelected : null]}
+        ></View>
+        <Image
+          source={accessoryImageMap[accessory.previewUrl]}
+          style={styles.shopAccessoryImage}
+        />
+        <View style={styles.priceContainer}>
           <Image
-            source={require("../../assets/adaptive-icon.png")}
-            style={styles.shopAccessoryImage}
+            source={require("../../assets/money-black.png")}
+            style={styles.moneyIcon}
           />
+          <Text style={styles.price}>{accessory.cost}</Text>
         </View>
-        <Text style={styles.title}>{accessory.accessory_name}</Text>
-        {disabled && (
-          <View style={styles.disabled}>
-            <Text>Already owned!</Text>
-          </View>
-        )}
       </View>
     </TouchableOpacity>
   );
@@ -48,16 +54,23 @@ const ShopAccessory = ({
 export default ShopAccessory;
 
 const styles = StyleSheet.create({
-  button: {},
-  disabledButton: {},
+  button: {
+    backgroundColor: "white",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    borderRadius: 8,
+  },
   container: {
-    width: 128,
-    height: 128,
-    borderColor: "black",
-    borderWidth: 1,
-    borderStyle: "dashed",
+    width: 78,
+    padding: 8,
     justifyContent: "center",
     alignItems: "center",
+    gap: 8,
   },
   costContainer: {
     position: "absolute",
@@ -73,15 +86,45 @@ const styles = StyleSheet.create({
     color: "white",
   },
   shopAccessoryImage: {
-    width: 96,
-    height: 96,
+    width: 70,
+    height: 70,
     objectFit: "contain",
   },
   title: {
     paddingTop: 8,
   },
-  disabled: {
+  check: {
     position: "absolute",
-    margin: "auto",
+    top: 4,
+    right: 4,
+    width: 16,
+    height: 16,
+    borderRadius: 200,
+    zIndex: 100,
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "#D8D8DC",
+  },
+  checkSelected: {
+    backgroundColor: "#34C759",
+  },
+  selected: {
+    borderColor: "green",
+    borderWidth: 0.2,
+    borderStyle: "solid",
+  },
+  disabled: {
+    opacity: 0.4,
+  },
+  priceContainer: {
+    flexDirection: "row",
+    gap: 4,
+  },
+  price: {
+    fontWeight: "bold",
+  },
+  moneyIcon: {
+    width: 16,
+    height: 16,
   },
 });

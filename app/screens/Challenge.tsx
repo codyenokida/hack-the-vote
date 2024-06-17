@@ -7,30 +7,20 @@ import {
   Modal,
   TouchableOpacity,
 } from "react-native";
-import CustomButton from "../components/CustomButton";
 import { NavigationProp } from "@react-navigation/native";
 import {
   addLastCompletedChallengeDate,
   incrementDailyStreak,
   rewardUserPoints,
 } from "../../lib/firebase/firestore";
-
-type MultipleChoices = "A" | "B" | "C" | "D";
-
-interface Question {
-  question: string;
-  A: string;
-  B: string;
-  C: string;
-  D: string;
-  explanation: string;
-  correct_answer: MultipleChoices;
-}
+import ChallengeQuestion from "../components/ChallengeQuestion";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
   user: any;
 }
+
+const allAnswerOptions: MultipleChoices[] = ["A", "B", "C", "D"];
 
 const Challenge = ({ navigation, user }: RouterProps) => {
   const [data, setData] = useState<Question>(null);
@@ -39,18 +29,12 @@ const Challenge = ({ navigation, user }: RouterProps) => {
   /**
    * States for verifying answers
    */
-  const [numTry, setNumTry] = useState<number>(0);
+  const [wrongAnswerIndexs, setWrongAnswerIndexs] = useState<number[]>([]);
   const [correct, setCorrect] = useState<boolean>(false);
-  const [disabledOptions, setDisabledOptions] = useState<boolean[]>([
-    false,
-    false,
-    false,
-    false,
-  ]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   useEffect(() => {
-    fetch("http://localhost:3000/question/random")
+    fetch("http://localhost:3000/question/2")
       .then((response) => response.json())
       .then((json) => {
         console.log(json);
@@ -60,12 +44,6 @@ const Challenge = ({ navigation, user }: RouterProps) => {
       .catch((error) => console.error(error));
   }, []);
 
-  useEffect(() => {
-    if (numTry >= 2) {
-      //   navigation.navigate("Lessons");
-    }
-  }, [numTry]);
-
   if (loading) {
     return (
       <View style={styles.container}>
@@ -74,20 +52,19 @@ const Challenge = ({ navigation, user }: RouterProps) => {
     );
   }
 
-  async function verifyAnswer(attemptedAnswer: MultipleChoices) {
+  async function verifyAnswer(attemptedAnswer: MultipleChoices, index: number) {
     const correctAnswer = data?.correct_answer.replaceAll(/\s/g, "");
-    if (!(setCorrect && setNumTry)) return;
     if (attemptedAnswer === correctAnswer) {
       setCorrect(true);
       setModalVisible(true);
       const userId = user.uid;
       await rewardUserPoints(userId, 10);
       await incrementDailyStreak(userId);
-      await addLastCompletedChallengeDate(userId);
+      //   await addLastCompletedChallengeDate(userId);
       return;
     } else {
+      setWrongAnswerIndexs((prev) => [...prev, index]);
       setCorrect(false);
-      setNumTry(numTry + 1);
     }
   }
 
@@ -95,10 +72,14 @@ const Challenge = ({ navigation, user }: RouterProps) => {
     <View style={styles.container}>
       <Text style={styles.title}>{data.question}</Text>
       <View style={styles.choices}>
-        <CustomButton title={data.A} onPress={() => verifyAnswer("A")} />
-        <CustomButton title={data.B} onPress={() => verifyAnswer("B")} />
-        <CustomButton title={data.C} onPress={() => verifyAnswer("C")} />
-        <CustomButton title={data.D} onPress={() => verifyAnswer("D")} />
+        {allAnswerOptions.map((option, index) => (
+          <ChallengeQuestion
+            key={option}
+            title={data[option]}
+            onPress={() => verifyAnswer(option, index)}
+            disabled={!!wrongAnswerIndexs?.find((i) => i === index)}
+          />
+        ))}
       </View>
       <Modal
         animationType="slide"
@@ -136,12 +117,7 @@ const Challenge = ({ navigation, user }: RouterProps) => {
           </View>
         </View>
       </Modal>
-      <View>
-        {correct && <Text>{data.explanation}</Text>}
-        {numTry >= 2 && !correct && (
-          <Text>Nooo you couldn't get it right :c</Text>
-        )}
-      </View>
+      <View>{correct && <Text>{data.explanation}</Text>}</View>
     </View>
   );
 };

@@ -8,17 +8,14 @@ import {
 import { getFirestore } from "firebase/firestore";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCHd06Z50W0yaBd_4VTHYa1BhragUPdD3o",
-  authDomain: "hack-the-vote-8644a.firebaseapp.com",
-  projectId: "hack-the-vote-8644a",
-  storageBucket: "hack-the-vote-8644a.appspot.com",
-  messagingSenderId: "804434995857",
-  appId: "1:804434995857:web:55d1c11ed8ea2f4271ad30",
+  apiKey: "AIzaSyDz53w4hWFtjFD9CMN_gjm4gTa_q0Xkkek",
+  authDomain: "politicool-66e0f.firebaseapp.com",
+  projectId: "politicool-66e0f",
+  storageBucket: "politicool-66e0f.appspot.com",
+  messagingSenderId: "410375845277",
+  appId: "1:410375845277:web:ae1ed7b4d5b18a8c0f2b74",
 };
 
 let FIREBASE_APP;
@@ -33,7 +30,7 @@ if (!getApps().length) {
     });
     FIRESTORE_DB = getFirestore(FIREBASE_APP);
   } catch (error) {
-    console.log("Error initializing app: " + error);
+    console.error("Error initializing app: " + error);
   }
 } else {
   FIREBASE_APP = getApp();

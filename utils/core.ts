@@ -1,9 +1,11 @@
-import {
-  addAccessory,
-  getUser,
-  subtractUserPoints,
-} from "../lib/firebase/firestore";
+import { addAccessory, subtractUserPoints } from "../lib/firebase/firestore";
 
+/**
+ *
+ * @param userId
+ * @param accessory
+ * @returns
+ */
 export async function redeemAccessoryForPoints(
   userId: string,
   accessory: Accessory

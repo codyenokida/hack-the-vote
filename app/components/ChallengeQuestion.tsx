@@ -5,17 +5,17 @@ import {
   GestureResponderEvent,
 } from "react-native";
 
-interface CustomButtonProps {
+interface ChallengeQuestionProps {
   title: string;
   onPress: (event: GestureResponderEvent) => void;
   disabled?: boolean;
 }
 
-const CustomButton = ({
+const ChallengeQuestion = ({
   title,
   onPress,
   disabled = false,
-}: CustomButtonProps) => {
+}: ChallengeQuestionProps) => {
   return (
     <TouchableOpacity
       style={[styles.button, disabled ? styles.disabledButton : null]}
@@ -27,11 +27,11 @@ const CustomButton = ({
   );
 };
 
-export default CustomButton;
+export default ChallengeQuestion;
 
 const styles = StyleSheet.create({
   button: {
-    width: 128,
+    width: "100%",
     backgroundColor: "#1e90ff",
     paddingVertical: 10,
     paddingHorizontal: 20,

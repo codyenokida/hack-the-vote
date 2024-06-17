@@ -6,7 +6,6 @@ import {
   ActivityIndicator,
   Button,
   KeyboardAvoidingView,
-  Image,
 } from "react-native";
 import React, { useState } from "react";
 import { FIREBASE_AUTH } from "../../lib/firebase/firebase";
@@ -16,7 +15,7 @@ import {
 } from "firebase/auth";
 import { createUser } from "../../lib/firebase/firestore";
 
-const Login = ({ navigation }) => {
+const Signup = () => {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -52,52 +51,36 @@ const Login = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <KeyboardAvoidingView behavior="padding" style={styles.container}>
-        <Image
-          source={require("../../assets/adaptive-icon.png")}
-          style={styles.image}
-        />
-        <Text style={styles.title}>GROW TO VOTE</Text>
-        {/* <TextInput
+      <KeyboardAvoidingView behavior="padding">
+        <Text>Sign up</Text>
+        <TextInput
           style={styles.input}
           placeholder="Name"
           autoCapitalize="none"
           value={name}
           onChangeText={(text) => setName(text)}
-        /> */}
-        <View style={styles.inputs}>
-          <View style={styles.inputContainer}>
-            <Text>Username</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your username"
-              autoCapitalize="none"
-              value={email}
-              onChangeText={(text) => setEmail(text)}
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Text>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your password"
-              autoCapitalize="none"
-              secureTextEntry={true}
-              value={password}
-              onChangeText={(text) => setPassword(text)}
-            />
-          </View>
-        </View>
-
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          autoCapitalize="none"
+          value={email}
+          onChangeText={(text) => setEmail(text)}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          autoCapitalize="none"
+          secureTextEntry={true}
+          value={password}
+          onChangeText={(text) => setPassword(text)}
+        />
         {loading ? (
           <ActivityIndicator size="large" color="0000ff" />
         ) : (
           <>
-            <Button title="Login" onPress={signIn} />
-            <Button
-              title="No account yet? Sign up here."
-              onPress={() => navigation.navigate("Signup")}
-            />
+            <Button title="Sign up" onPress={signIn} />
+            <Button title="Create account" onPress={signUp} />
           </>
         )}
       </KeyboardAvoidingView>
@@ -105,41 +88,20 @@ const Login = ({ navigation }) => {
   );
 };
 
-export default Login;
+export default Signup;
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
+    marginHorizontal: 20,
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
-    gap: 16,
-  },
-  title: {
-    fontSize: 36,
-  },
-  inputs: {
-    justifyContent: "center",
-    alignItems: "flex-start",
-    width: "100%",
-    gap: 8,
-  },
-  inputContainer: {
-    width: "100%",
   },
   input: {
     marginVertical: 4,
-    width: "100%",
     height: 50,
     borderWidth: 1,
     borderRadius: 4,
     padding: 10,
     backgroundColor: "#fff",
-  },
-  image: {
-    width: 200,
-    height: 200,
-    marginHorizontal: "auto",
   },
 });

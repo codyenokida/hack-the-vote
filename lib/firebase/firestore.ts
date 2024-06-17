@@ -43,6 +43,7 @@ export async function createUser(userId: string, name: string, email: string) {
       points: 0,
       accessories: [],
       num_daily_streak: 0,
+      lessonsCompleted: [],
     };
 
     await setDoc(userDocRef, user);
@@ -178,5 +179,25 @@ export async function addAccessory(userId: string, accessory: Accessory) {
   // Atomically add a new comment to the "comments" array field.
   await updateDoc(userDocRef, {
     accessories: arrayUnion(accessory),
+  });
+}
+
+/**
+ * Add completed lesson
+ * @param userId
+ * @param accessory
+ */
+export async function addCompletedLesson(userId: string, lesson_id: number) {
+  if (!userId) {
+    throw "Needs a userId";
+  }
+  if (lesson_id === 0 ? false : !lesson_id) {
+    throw "Needs lesson id";
+  }
+  const userDocRef = doc(db, "users", userId);
+
+  // Atomically add a new comment to the "comments" array field.
+  await updateDoc(userDocRef, {
+    lessonsCompleted: arrayUnion(lesson_id),
   });
 }
